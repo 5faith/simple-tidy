@@ -4,7 +4,7 @@ SimpleTidy 是一个来简单记录家中物品收纳的程序
 
 # 一. 架构图
 
-![image.png](.\assert\jiagoutu.png)
+![image.png](https://github.com/5faith/simple-tidy/blob/main/assert/jiagoutu.png?raw=true)
 
 # 二. 技术选型
 
