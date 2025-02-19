@@ -1,0 +1,52 @@
+services:
+  # mysql数据库
+  tidy-db:
+    image: "mysql:8.0.41"
+    container_name: tidy-db
+    restart: on-failure:3
+    networks:
+      - tidy-net
+    ports:
+      - "3306:3306"
+    volumes:
+      # 数据目录挂载
+      - ./mysql/data/mysql:/var/lib/mysql
+      # 日志目录挂载
+      - ./mysql/data/logs:/var/log/mysql
+      # 备份目录挂载
+      - ./mysql/data/backup:/data/backup
+      # 初始SQL文件挂载
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      # 配置文件挂载
+      - ./mysql/config/my.cnf:/etc/mysql/conf.d/my.cnf
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 3s
+      retries: 5
+      start_period: 30s
+    environment:
+      - MYSQL_ROOT_PASSWORD=tidy_db@55555
+      - MYSQL_DATABASE=simple_tidy
+
+  tidy-redis:
+    image: "redis:7.4.2"
+    container_name: tidy-redis
+    restart: on-failure:3
+    networks:
+      - tidy-net
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/etc/redis/redis.conf
+    command: [ "redis-server", "/usr/local/etc/redis/redis.conf" ]
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+# tidy 网络
+networks:
+  tidy-net:
+    driver: bridge
