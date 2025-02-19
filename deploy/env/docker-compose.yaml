@@ -1,11 +1,11 @@
 services:
   # mysql数据库
-  tidy-db:
+  env_db:
     image: "mysql:8.0.41"
-    container_name: tidy-db
+    container_name: env_db
     restart: on-failure:3
     networks:
-      - tidy-net
+      - env_net
     ports:
       - "3306:3306"
     volumes:
@@ -25,15 +25,17 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      - MYSQL_ROOT_PASSWORD=tidy_db@55555
-      - MYSQL_DATABASE=simple_tidy
+      MYSQL_ROOT_PASSWORD: "tidy@55555"
+      MYSQL_DATABASE: "simple_tidy"
+      MYSQL_USER: "tidy"
+      MYSQL_PASSWORD: "5faith@55555"
 
-  tidy-redis:
+  env_redis:
     image: "redis:7.4.2"
-    container_name: tidy-redis
+    container_name: env_redis
     restart: on-failure:3
     networks:
-      - tidy-net
+      - env_net
     ports:
       - "6379:6379"
     volumes:
@@ -46,7 +48,48 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-# tidy 网络
+
+  env_nacos:
+    image: nacos/nacos-server:2.0.2
+    container_name: env_nacos
+    restart: on-failure:3
+    networks:
+      - env_net
+    ports:
+      - "8848:8848"
+    environment:
+      MODE: "standalone"
+    volumes:
+      - ~/nacos/conf/application.properties:/home/nacos/init.d/custom-config/application.properties
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8848/nacos/health"] # 健康检查命令
+      # 检查间隔时间
+      interval: 30s
+      # 超时时间
+      timeout: 10s
+      # 失败重试次数
+      retries: 3
+      # 容器启动后等待多久开始第一次健康检查
+      start_period: 10s
+
+  env_nginx:
+    image: nginx:1.26.3
+    container_name: env_nginx
+    restart: on-failure:3
+    networks:
+      - env_net
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/html:/usr/share/nginx/html
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+# env网络
 networks:
-  tidy-net:
+  env_net:
     driver: bridge
