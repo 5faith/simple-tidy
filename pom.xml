@@ -8,9 +8,9 @@
     <artifactId>ruoyi</artifactId>
     <version>3.6.5</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
-    <description>若依微服务系统</description>
+    <name>simple-tidy</name>
+    <url>https://5faith.xyz/tidy</url>
+    <description>simple-tidy(简洁收纳)</description>
 
     <properties>
         <ruoyi.version>3.6.5</ruoyi.version>
